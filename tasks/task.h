@@ -22,5 +22,8 @@ void displayDeletedTasks();
 void markTaskCompleted();
 void deleteTask();
 void updateTask();
+int daysRemaining(const std::string& deadline);
+void restoreDeletedTask();
+void sortTasks();
 
 #endif

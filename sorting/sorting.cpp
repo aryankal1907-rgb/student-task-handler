@@ -1,30 +1,23 @@
 
 #include "sorting.h"
 #include "../tasks/task.h"
-#include <cstdio>
+#include <vector>
 
-int getDeadlineKey(const char deadline[]) {
-    int day, month, year;
-    if (sscanf(deadline, "%d-%d-%d", &day, &month, &year) != 3)
-        return 99999999;
-
-    return year * 10000 + month * 100 + day;
-}
-
-int getDeadlineKey(const std::string& deadline) {
-    int day, month, year;
-    if (sscanf(deadline.c_str(), "%d-%d-%d", &day, &month, &year) != 3)
-        return 99999999;
-
-    return year * 10000 + month * 100 + day;
-}
+using namespace std;
 
 bool comesBefore(const Task& a, const Task& b) {
     if (a.priority != b.priority)
         return a.priority < b.priority;
 
-    return getDeadlineKey(a.deadline) <= getDeadlineKey(b.deadline);
+    int daysA = daysRemaining(a.deadline);
+    int daysB = daysRemaining(b.deadline);
+
+    if (daysA != daysB)
+        return daysA < daysB;
+
+    return false;
 }
+
 
 void mergeTasks(int left, int mid, int right, Task temp[]) {
     int i = left;

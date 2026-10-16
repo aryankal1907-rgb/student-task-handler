@@ -18,9 +18,10 @@ int main() {
         cout << "3. Mark Task Completed\n";
         cout << "4. Delete Task\n";
         cout << "5. Display Deleted Tasks\n";
-        cout << "6. Array-Based Task Operations\n";
+        cout << "6. Task Operations\n";
         cout << "7. Search Task by ID \n";
-        cout << "8. Exit\n";
+        cout << "8. Restore Deleted Task\n";
+        cout << "9. Exit\n";
         cout << "Enter choice: ";
 
         if (!(cin >> choice)) {
@@ -60,6 +61,10 @@ int main() {
                 break;
 
             case 8:
+                restoreDeletedTask();
+                break;
+
+            case 9:
                 cout << "Tasks saved. Exiting application.\n";
                 break;
 
@@ -67,7 +72,7 @@ int main() {
                 cout << "Invalid choice.\n";
         }
 
-    } while (choice != 8);
+    } while (choice != 9);
 
     return 0;
 }

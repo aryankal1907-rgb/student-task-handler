@@ -425,6 +425,7 @@ void updateTask() {
 
 void displayTasks() {
     cleanupOverdueTasks();
+    sortTasks();
 
     if (taskCount == 0) {
         cout << "\nNo active tasks available.\n";
@@ -510,34 +511,100 @@ void displayDeletedTasks() {
     }
 }
 
-void markTaskCompleted() {
-    cleanupOverdueTasks();
 
-    if (taskCount == 0) {
-        cout << "No active tasks available.\n";
+
+void restoreDeletedTask() {
+    if (deletedTasks.empty()) {
+        cout << "No deleted tasks available to restore.\n";
         return;
     }
 
-    int id;
-    cout << "Enter task ID to mark completed: ";
+    if (taskCount >= 100) {
+        cout << "Active task list is full.\n";
+        return;
+    }
 
-    if (!(cin >> id)) {
+    cout << "\n========== DELETED TASKS ==========\n";
+
+    for (const Task& task : deletedTasks) {
+        cout << "ID: " << task.id
+             << " | Description: " << task.name
+             << " | Deadline: " << task.deadline << '\n';
+    }
+
+    int count;
+    cout << "How many tasks do you want to restore? ";
+
+    if (!(cin >> count)) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "Invalid input.\n";
         return;
     }
 
-    for (int i = 0; i < taskCount; i++) {
-        if (tasks[i].id == id) {
-            tasks[i].completed = true;
-            saveTasks();
-            cout << "Task completed and saved.\n";
+    if (count < 1 || count > static_cast<int>(deletedTasks.size())) {
+        cout << "Invalid number of tasks.\n";
+        return;
+    }
+
+    vector<int> ids;
+
+    cout << "Enter " << count << " Task IDs: ";
+
+    for (int i = 0; i < count; i++) {
+        int id;
+
+        if (!(cin >> id)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid Task ID.\n";
             return;
+        }
+
+        bool found = false;
+
+        for (const Task& task : deletedTasks) {
+            if (task.id == id) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            cout << "Deleted Task ID " << id << " not found.\n";
+            return;
+        }
+
+        for (int previous : ids) {
+            if (previous == id) {
+                cout << "Duplicate Task ID entered.\n";
+                return;
+            }
+        }
+
+        ids.push_back(id);
+    }
+
+    if (taskCount + count > 100) {
+        cout << "Not enough space in the active task list.\n";
+        return;
+    }
+
+    for (int id : ids) {
+        for (size_t i = 0; i < deletedTasks.size(); i++) {
+            if (deletedTasks[i].id == id) {
+                tasks[taskCount++] = deletedTasks[i];
+                deletedTasks.erase(deletedTasks.begin() + i);
+                break;
+            }
         }
     }
 
-    cout << "Task ID not found.\n";
+    sortTasks();
+    saveTasks();
+    saveDeletedTasks();
+
+    cout << count << " tasks restored successfully.\n";
 }
 
 
@@ -549,29 +616,85 @@ void deleteTask() {
         return;
     }
 
-    int id;
-    cout << "Enter task ID to delete: ";
+    int count;
+    cout << "How many tasks do you want to delete? ";
 
-    if (!(cin >> id)) {
+    if (!(cin >> count)) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "Invalid input.\n";
         return;
     }
 
-    for (int i = 0; i < taskCount; i++) {
-        if (tasks[i].id == id) {
-            deletedTasks.push_back(tasks[i]);
+    if (count < 1 || count > taskCount) {
+        cout << "Enter a number between 1 and "
+             << taskCount << ".\n";
+        return;
+    }
 
-            removeTaskAt(i);
-            saveTasks();
-            saveDeletedTasks();
+    vector<int> ids;
 
-            cout << "Task deleted and saved in history.\n";
+    cout << "Enter " << count << " Task IDs: ";
+
+    for (int i = 0; i < count; i++) {
+        int id;
+
+        if (!(cin >> id)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid Task ID.\n";
             return;
+        }
+
+        bool found = false;
+
+        for (int j = 0; j < taskCount; j++) {
+            if (tasks[j].id == id) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found || id <= 0) {
+            cout << "Invalid Task ID: " << id << '\n';
+            return;
+        }
+
+        for (int previous : ids) {
+            if (previous == id) {
+                cout << "Duplicate Task ID entered.\n";
+                return;
+            }
+        }
+
+        ids.push_back(id);
+    }
+
+    char confirm;
+    cout << "Confirm deletion of " << count
+         << " tasks? (Y/N): ";
+    cin >> confirm;
+
+    if (confirm != 'Y' && confirm != 'y') {
+        cout << "Deletion cancelled.\n";
+        return;
+    }
+
+    for (int id : ids) {
+        for (int i = 0; i < taskCount; i++) {
+            if (tasks[i].id == id) {
+                deletedTasks.push_back(tasks[i]);
+                removeTaskAt(i);
+                break;
+            }
         }
     }
 
-    cout << "Task ID not found.\n";
+    sortTasks();
+    saveTasks();
+    saveDeletedTasks();
+
+    cout << count << " tasks deleted successfully.\n";
 }
+
 
