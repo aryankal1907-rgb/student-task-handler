@@ -12,3 +12,80 @@ oops quiz
 19-10-2026
 1
 1
+ADDED
+9
+Tutorial
+coa tut 6
+22-10-2026
+1
+0
+DELETED
+5
+Project
+rdbms
+24-10-2026
+1
+0
+COMPLETED
+3
+Quiz Preparation
+oops quiz
+19-10-2026
+1
+1
+DELETED
+1
+Project
+dsa prooject on task handling
+19-10-2026
+1
+1
+DELETED
+5
+Project
+rdbms
+24-10-2026
+1
+0
+RESTORED
+1
+Project
+dsa prooject on task handling
+19-10-2026
+1
+1
+RESTORED
+5
+Project
+rdbms
+24-10-2026
+1
+0
+UNDO: Restored 2 Task(s)
+1
+Project
+dsa prooject on task handling
+19-10-2026
+1
+1
+UNDO: Restored 2 Task(s)
+5
+Project
+rdbms
+24-10-2026
+1
+0
+REDO: Restored 2 Task(s)
+1
+Project
+dsa prooject on task handling
+19-10-2026
+1
+1
+REDO: Restored 2 Task(s)
+5
+Project
+rdbms
+24-10-2026
+1
+0

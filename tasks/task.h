@@ -2,6 +2,7 @@
 #define TASK_H
 
 #include <string>
+#include <vector>
 
 struct Task {
     int id;
@@ -31,5 +32,8 @@ void recordTaskDeleted(const Task& task);
 void recordTaskRestored(const Task& task);
 void recordTaskCompleted(const Task& task);
 void recordTaskUpdated(const Task& task);
+
+std::vector<Task> getDeletedTasksSnapshot();
+void restoreDeletedTasksSnapshot(const std::vector<Task>& saved);
 
 #endif

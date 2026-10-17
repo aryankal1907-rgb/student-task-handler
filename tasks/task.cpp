@@ -11,6 +11,7 @@
 #include <algorithm>
 #include "../sorting/sorting.h"
 #include "../link list/linkedlist.h"
+#include "../stack/stack.h"
 using namespace std;
 
 Task tasks[100];
@@ -201,10 +202,11 @@ void removeTaskAt(int index) {
     taskCount--;
 }
 
+
 void cleanupOverdueTasks() {
     bool changed = false;
 
-    for (int i = 0; i < taskCount;) {
+    for (int i = 0; i < taskCount; ) {
         int days = daysRemaining(tasks[i].deadline);
 
         if (!tasks[i].completed && days < 0) {
@@ -217,19 +219,35 @@ void cleanupOverdueTasks() {
             removeTaskAt(i);
             changed = true;
         } else {
-            if (!tasks[i].completed)
+            if (!tasks[i].completed) {
+                int oldPriority = tasks[i].priority;
                 tasks[i].priority = calculatePriority(days);
+
+                if (tasks[i].priority != oldPriority) {
+                    recordTaskUpdated(tasks[i]);
+                    changed = true;
+                }
+            }
             i++;
         }
     }
 
+    saveTasks();
+
     if (changed) {
-        saveTasks();
         saveDeletedTasks();
-    } else {
-        saveTasks();
     }
 }
+
+vector<Task> getDeletedTasksSnapshot() {
+    return deletedTasks;
+}
+
+void restoreDeletedTasksSnapshot(const vector<Task>& saved) {
+    deletedTasks = saved;
+    saveDeletedTasks();
+}
+
 
 void initializeTasks() {
     taskCount = 0;
@@ -311,6 +329,7 @@ void addTask() {
     task.priority = calculatePriority(days);
     task.completed = false;
 
+    saveState("Added Task: " + task.name + " (ID " + to_string(task.id) + ")");
     tasks[taskCount++] = task;
     recordTaskAdded(task);
     saveTasks();
@@ -417,6 +436,7 @@ void updateTask() {
             return;
         }
 
+        saveState("Updated Task: " + updated.name + " (ID " + to_string(updated.id) + ")");
         tasks[i] = updated;
         recordTaskUpdated(updated);
         saveTasks();
@@ -601,6 +621,7 @@ void restoreDeletedTask() {
         return;
     }
 
+    saveState("Restored " + to_string(count) + " Task(s)", ids);
     for (int id : ids) {
         for (size_t i = 0; i < deletedTasks.size(); i++) {
             if (deletedTasks[i].id == id) {
@@ -693,6 +714,7 @@ void deleteTask() {
         cout << "Deletion cancelled.\n";
         return;
     }
+    saveState("Deleted " + to_string(count) + " Task(s)", ids);
 
     for (int id : ids) {
         for (int i = 0; i < taskCount; i++) {
@@ -730,6 +752,7 @@ void markTaskCompleted() {
         cout << "Invalid input.\n";
         return;
     }
+   saveState("Marked Task ID " + to_string(id) + " as Completed");
 
     for (int i = 0; i < taskCount; i++) {
         if (tasks[i].id == id) {

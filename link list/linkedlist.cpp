@@ -35,15 +35,6 @@ static bool inWorkflow(int id) {
     return false;
 }
 
-static bool taskExists(int id) {
-    for (int i = 0; i < taskCount; i++) {
-        if (tasks[i].id == id)
-            return true;
-    }
-
-    return false;
-}
-
 static void addToEnd(int id) {
     if (inWorkflow(id))
         return;
@@ -116,8 +107,7 @@ static void loadHistory() {
 }
 
 void addTaskToWorkflow(int id) {
-    if (taskExists(id))
-        addToEnd(id);
+    addToEnd(id);
 }
 
 void removeTaskFromWorkflow(int id) {
@@ -138,6 +128,17 @@ void removeTaskFromWorkflow(int id) {
         previous = current;
         current = current->next;
     }
+}
+
+void syncWorkflowWithTasks() {
+    while (head != nullptr) {
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+    }
+
+    for (int i = 0; i < taskCount; i++)
+        addToEnd(tasks[i].id);
 }
 
 void initializeWorkflow() {
@@ -178,6 +179,33 @@ void recordTaskCompleted(const Task& task) {
 
 void recordTaskUpdated(const Task& task) {
     history.push_back({"UPDATED", task});
+    saveHistory();
+}
+
+void recordUndoRedoWorkflow(const string& action,
+                            const vector<int>& ids) {
+    for (int id : ids) {
+        Task recordedTask{};
+        recordedTask.id = id;
+        recordedTask.name = "Task state changed";
+
+        for (int i = 0; i < taskCount; i++) {
+            if (tasks[i].id == id) {
+                recordedTask = tasks[i];
+                break;
+            }
+        }
+
+        for (const WorkflowEvent& event : history) {
+            if (event.task.id == id &&
+                recordedTask.name == "Task state changed") {
+                recordedTask = event.task;
+            }
+        }
+
+        history.push_back({action, recordedTask});
+    }
+
     saveHistory();
 }
 
@@ -223,7 +251,8 @@ static void displayCurrentWorkflow() {
                      << " | Type: " << tasks[i].type
                      << " | Task: " << tasks[i].name
                      << " | Priority: " << priorityName(tasks[i].priority)
-                     << " | Days remaining: " << daysRemaining(tasks[i].deadline)
+                     << " | Days remaining: "
+                     << daysRemaining(tasks[i].deadline)
                      << " | Deadline: " << tasks[i].deadline
                      << " | Status: "
                      << (tasks[i].completed ? "Completed" : "Pending")
