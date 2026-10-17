@@ -8,12 +8,14 @@
 #include "stack/stack.h"
 #include "queue/queue.h"
 #include "avl/avl.h"
+#include "graphs/graph.h"
 using namespace std;
 
 int main() {
     initializeTasks();
     initializeWorkflow();
     initializeAVL();
+    initializeGraph();
 
     int choice = 0;
 
@@ -32,7 +34,8 @@ int main() {
         cout<< "11.Redo operation\n";
         cout<<"12. Display Next Task\n";
         cout<<"13. Display Tasks by Deadline Range\n";
-        cout << "14. Exit\n";
+        cout<<"14. Display Graph\n";
+        cout << "0. Exit\n";
         cout << "Enter choice: ";
 
         if (!(cin >> choice)) {
@@ -122,6 +125,10 @@ int main() {
                 break;
 
             case 14:
+                graphMenu();
+                break;
+
+            case 0:
                 cout << "Tasks saved. Exiting program.\n";
                 break;   
 
@@ -129,7 +136,7 @@ int main() {
                 cout << "Invalid choice.\n";
         }
 
-    } while (choice != 14);
+    } while (choice != 0);
 
     return 0;
 }

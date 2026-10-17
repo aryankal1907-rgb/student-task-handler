@@ -1,3 +1,4 @@
+
 #ifndef TASK_H
 #define TASK_H
 
@@ -7,6 +8,7 @@
 struct Task {
     int id;
     std::string type;
+    std::string subject;
     std::string name;
     std::string deadline;
     int priority;
