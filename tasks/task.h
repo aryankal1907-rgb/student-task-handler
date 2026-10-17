@@ -24,6 +24,7 @@ void markTaskCompleted();
 void deleteTask();
 void updateTask();
 int daysRemaining(const std::string& deadline);
+int calculatePriority(int days);
 void restoreDeletedTask();
 void sortTasks();
 

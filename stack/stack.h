@@ -17,4 +17,6 @@ void redoMultiple(int n);
 bool canUndo();
 bool canRedo();
 
+vector <int> queueSnapshot();
+
 #endif

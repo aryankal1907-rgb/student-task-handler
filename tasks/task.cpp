@@ -12,6 +12,7 @@
 #include "../sorting/sorting.h"
 #include "../link list/linkedlist.h"
 #include "../stack/stack.h"
+#include "../queue/queue.h"
 using namespace std;
 
 Task tasks[100];
@@ -216,6 +217,7 @@ void cleanupOverdueTasks() {
 
             recordTaskDeleted(tasks[i]);
             deletedTasks.push_back(tasks[i]);
+            removeTaskFromQueue(tasks[i].id);
             removeTaskAt(i);
             changed = true;
         } else {
@@ -257,6 +259,7 @@ void initializeTasks() {
     loadTasks();
     loadDeletedTasks();
     cleanupOverdueTasks();
+    initializeQueueFromTasks();
 
     cout << "Tasks loaded successfully.\n";
 }
@@ -332,6 +335,7 @@ void addTask() {
     saveState("Added Task: " + task.name + " (ID " + to_string(task.id) + ")");
     tasks[taskCount++] = task;
     recordTaskAdded(task);
+    enqueueTaskAutomatically(task.id);
     saveTasks();
 
     cout << "Task added successfully. ID: "
@@ -439,6 +443,8 @@ void updateTask() {
         saveState("Updated Task: " + updated.name + " (ID " + to_string(updated.id) + ")");
         tasks[i] = updated;
         recordTaskUpdated(updated);
+        refreshQueue();
+        sortTasks();
         saveTasks();
         cout << "Task updated and saved successfully.\n";
         return;
@@ -628,6 +634,7 @@ void restoreDeletedTask() {
                 Task restoredTask = deletedTasks[i];
                 tasks[taskCount++] = deletedTasks[i];
                 recordTaskRestored(restoredTask);
+                enqueueTaskAutomatically(restoredTask.id);
                 deletedTasks.erase(deletedTasks.begin() + i);
                 break;
             }
@@ -721,6 +728,7 @@ void deleteTask() {
             if (tasks[i].id == id) {
                 recordTaskDeleted(tasks[i]);
                 deletedTasks.push_back(tasks[i]);
+                removeTaskFromQueue(id);
                 removeTaskAt(i);
                 break;
             }
@@ -758,6 +766,7 @@ void markTaskCompleted() {
         if (tasks[i].id == id) {
             tasks[i].completed = true;
             recordTaskCompleted(tasks[i]);
+            removeTaskFromQueue(id);
             sortTasks();
             saveTasks();
             cout << "Task marked as completed.\n";

@@ -6,6 +6,7 @@
 #include "hashing/hashing.h"
 #include "link list/linkedlist.h"
 #include "stack/stack.h"
+#include "queue/queue.h"
 using namespace std;
 
 int main() {
@@ -27,7 +28,8 @@ int main() {
         cout << "9. Task Workflow\n";
         cout<< "10.Undo operation\n";
         cout<< "11.Redo operation\n";
-        cout << "12. Exit\n";
+        cout<<"12. Display Next Task\n";
+        cout << "13. Exit\n";
         cout << "Enter choice: ";
 
         if (!(cin >> choice)) {
@@ -107,6 +109,13 @@ int main() {
                 break;
             
             case 12:
+                displayNextTask();
+                displayQueue();
+                break;
+            
+            
+            
+             case 13:
                 cout << "Tasks saved. Exiting program.\n";
                 break;   
 
@@ -114,7 +123,7 @@ int main() {
                 cout << "Invalid choice.\n";
         }
 
-    } while (choice != 12);
+    } while (choice != 13);
 
     return 0;
 }

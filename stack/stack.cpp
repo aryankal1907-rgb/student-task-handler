@@ -2,6 +2,7 @@
 #include "stack.h"
 #include "../tasks/task.h"
 #include "../link list/linkedlist.h"
+#include "../queue/queue.h"
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -21,6 +22,7 @@ struct TaskState {
     vector<Task> deletedTasks;
     string operation;
     vector<int> taskIds;
+    vector<int> queueSnapshot;
 };
 
 TaskState undoStack[100];
@@ -40,6 +42,7 @@ TaskState createState(const string& operation,
     state.deletedTasks = getDeletedTasksSnapshot();
     state.operation = operation;
     state.taskIds = taskIds;
+    state.queueSnapshot = getQueueSnapshot();
 
     return state;
 }
@@ -63,6 +66,7 @@ void restoreState(const TaskState& state) {
         tasks[i] = state.tasks[i];
 
     restoreDeletedTasksSnapshot(state.deletedTasks);
+    restoreQueueSnapshot(state.queueSnapshot);
     saveTasks();
 }
 
@@ -85,7 +89,7 @@ void saveState(const string& operation) {
 }
 
 void saveState(const string& operation,
-               const vector<int>& taskIds) {
+               const vector<int>& taskIds) {           
     pushState(undoStack, undoTop,
               createState(operation, taskIds));
     redoTop = -1;
