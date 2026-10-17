@@ -7,11 +7,13 @@
 #include "link list/linkedlist.h"
 #include "stack/stack.h"
 #include "queue/queue.h"
+#include "avl/avl.h"
 using namespace std;
 
 int main() {
     initializeTasks();
     initializeWorkflow();
+    initializeAVL();
 
     int choice = 0;
 
@@ -29,7 +31,8 @@ int main() {
         cout<< "10.Undo operation\n";
         cout<< "11.Redo operation\n";
         cout<<"12. Display Next Task\n";
-        cout << "13. Exit\n";
+        cout<<"13. Display Tasks by Deadline Range\n";
+        cout << "14. Exit\n";
         cout << "Enter choice: ";
 
         if (!(cin >> choice)) {
@@ -53,6 +56,7 @@ int main() {
                 break;
 
             case 4:
+                displayTasks();
                 deleteTask();
                 break;
 
@@ -113,9 +117,11 @@ int main() {
                 displayQueue();
                 break;
             
-            
-            
-             case 13:
+            case 13:
+                avlMenu();
+                break;
+
+            case 14:
                 cout << "Tasks saved. Exiting program.\n";
                 break;   
 
@@ -123,7 +129,7 @@ int main() {
                 cout << "Invalid choice.\n";
         }
 
-    } while (choice != 13);
+    } while (choice != 14);
 
     return 0;
 }

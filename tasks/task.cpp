@@ -13,6 +13,7 @@
 #include "../link list/linkedlist.h"
 #include "../stack/stack.h"
 #include "../queue/queue.h"
+#include "../avl/avl.h"
 using namespace std;
 
 Task tasks[100];
@@ -239,6 +240,7 @@ void cleanupOverdueTasks() {
     if (changed) {
         saveDeletedTasks();
     }
+    synchronizeAVLWithTasks();
 }
 
 vector<Task> getDeletedTasksSnapshot() {
@@ -260,6 +262,7 @@ void initializeTasks() {
     loadDeletedTasks();
     cleanupOverdueTasks();
     initializeQueueFromTasks();
+    synchronizeAVLWithTasks();
 
     cout << "Tasks loaded successfully.\n";
 }
@@ -337,6 +340,7 @@ void addTask() {
     recordTaskAdded(task);
     enqueueTaskAutomatically(task.id);
     saveTasks();
+    synchronizeAVLWithTasks();
 
     cout << "Task added successfully. ID: "
          << task.id << '\n';
@@ -446,6 +450,7 @@ void updateTask() {
         refreshQueue();
         sortTasks();
         saveTasks();
+        synchronizeAVLWithTasks();
         cout << "Task updated and saved successfully.\n";
         return;
     }
@@ -644,6 +649,7 @@ void restoreDeletedTask() {
     sortTasks();
     saveTasks();
     saveDeletedTasks();
+    synchronizeAVLWithTasks();
 
     cout << count << " tasks restored successfully.\n";
 }
@@ -738,6 +744,7 @@ void deleteTask() {
     sortTasks();
     saveTasks();
     saveDeletedTasks();
+    synchronizeAVLWithTasks();
 
     cout << count << " tasks deleted successfully.\n";
 }
@@ -769,6 +776,7 @@ void markTaskCompleted() {
             removeTaskFromQueue(id);
             sortTasks();
             saveTasks();
+            synchronizeAVLWithTasks();
             cout << "Task marked as completed.\n";
             return;
         }
