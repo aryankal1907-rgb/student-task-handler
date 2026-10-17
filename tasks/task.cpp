@@ -10,6 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include "../sorting/sorting.h"
+#include "../link list/linkedlist.h"
 using namespace std;
 
 Task tasks[100];
@@ -211,6 +212,7 @@ void cleanupOverdueTasks() {
                  << tasks[i].name << " (ID "
                  << tasks[i].id << ")\n";
 
+            recordTaskDeleted(tasks[i]);
             deletedTasks.push_back(tasks[i]);
             removeTaskAt(i);
             changed = true;
@@ -310,6 +312,7 @@ void addTask() {
     task.completed = false;
 
     tasks[taskCount++] = task;
+    recordTaskAdded(task);
     saveTasks();
 
     cout << "Task added successfully. ID: "
@@ -415,6 +418,7 @@ void updateTask() {
         }
 
         tasks[i] = updated;
+        recordTaskUpdated(updated);
         saveTasks();
         cout << "Task updated and saved successfully.\n";
         return;
@@ -513,14 +517,10 @@ void displayDeletedTasks() {
 
 
 
+
 void restoreDeletedTask() {
     if (deletedTasks.empty()) {
         cout << "No deleted tasks available to restore.\n";
-        return;
-    }
-
-    if (taskCount >= 100) {
-        cout << "Active task list is full.\n";
         return;
     }
 
@@ -543,7 +543,13 @@ void restoreDeletedTask() {
     }
 
     if (count < 1 || count > static_cast<int>(deletedTasks.size())) {
-        cout << "Invalid number of tasks.\n";
+        cout << "Enter a number between 1 and "
+             << deletedTasks.size() << ".\n";
+        return;
+    }
+
+    if (taskCount + count > 100) {
+        cout << "Not enough space in the active task list.\n";
         return;
     }
 
@@ -585,15 +591,22 @@ void restoreDeletedTask() {
         ids.push_back(id);
     }
 
-    if (taskCount + count > 100) {
-        cout << "Not enough space in the active task list.\n";
+    char confirm;
+    cout << "Confirm restoration of " << count
+         << " tasks? (Y/N): ";
+    cin >> confirm;
+
+    if (confirm != 'Y' && confirm != 'y') {
+        cout << "Restoration cancelled.\n";
         return;
     }
 
     for (int id : ids) {
         for (size_t i = 0; i < deletedTasks.size(); i++) {
             if (deletedTasks[i].id == id) {
+                Task restoredTask = deletedTasks[i];
                 tasks[taskCount++] = deletedTasks[i];
+                recordTaskRestored(restoredTask);
                 deletedTasks.erase(deletedTasks.begin() + i);
                 break;
             }
@@ -606,6 +619,7 @@ void restoreDeletedTask() {
 
     cout << count << " tasks restored successfully.\n";
 }
+
 
 
 void deleteTask() {
@@ -683,6 +697,7 @@ void deleteTask() {
     for (int id : ids) {
         for (int i = 0; i < taskCount; i++) {
             if (tasks[i].id == id) {
+                recordTaskDeleted(tasks[i]);
                 deletedTasks.push_back(tasks[i]);
                 removeTaskAt(i);
                 break;
@@ -696,5 +711,39 @@ void deleteTask() {
 
     cout << count << " tasks deleted successfully.\n";
 }
+
+
+void markTaskCompleted() {
+    cleanupOverdueTasks();
+
+    if (taskCount == 0) {
+        cout << "No active tasks available.\n";
+        return;
+    }
+
+    int id;
+    cout << "Enter task ID to mark completed: ";
+
+    if (!(cin >> id)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid input.\n";
+        return;
+    }
+
+    for (int i = 0; i < taskCount; i++) {
+        if (tasks[i].id == id) {
+            tasks[i].completed = true;
+            recordTaskCompleted(tasks[i]);
+            sortTasks();
+            saveTasks();
+            cout << "Task marked as completed.\n";
+            return;
+        }
+    }
+
+    cout << "Task ID not found.\n";
+}
+
 
 

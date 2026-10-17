@@ -26,4 +26,10 @@ int daysRemaining(const std::string& deadline);
 void restoreDeletedTask();
 void sortTasks();
 
+void recordTaskAdded(const Task& task);
+void recordTaskDeleted(const Task& task);
+void recordTaskRestored(const Task& task);
+void recordTaskCompleted(const Task& task);
+void recordTaskUpdated(const Task& task);
+
 #endif

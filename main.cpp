@@ -4,10 +4,12 @@
 #include "tasks/task.h"
 #include "arrays/array.h"
 #include "hashing/hashing.h"
+#include "link list/linkedlist.h"
 using namespace std;
 
 int main() {
     initializeTasks();
+    initializeWorkflow();
 
     int choice = 0;
 
@@ -21,7 +23,8 @@ int main() {
         cout << "6. Task Operations\n";
         cout << "7. Search Task by ID \n";
         cout << "8. Restore Deleted Task\n";
-        cout << "9. Exit\n";
+        cout << "9. Task Workflow\n";
+        cout << "10. Exit\n";
         cout << "Enter choice: ";
 
         if (!(cin >> choice)) {
@@ -65,6 +68,10 @@ int main() {
                 break;
 
             case 9:
+                LinkedListMenu();
+                break;
+
+            case 10:
                 cout << "Tasks saved. Exiting application.\n";
                 break;
 
@@ -72,7 +79,7 @@ int main() {
                 cout << "Invalid choice.\n";
         }
 
-    } while (choice != 9);
+    } while (choice != 10);
 
     return 0;
 }
