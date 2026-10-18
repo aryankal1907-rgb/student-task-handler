@@ -186,3 +186,9 @@ void redoMultiple(int n) {
     cout << "\nUpdated deleted-task history:\n";
     displayDeletedTasks();
 }
+
+// ===== WEB API ACCESSORS =====
+int undoCount() { return undoTop + 1; }
+int redoCount() { return redoTop + 1; }
+string undoLabel() { return undoTop >= 0 ? undoStack[undoTop].operation : ""; }
+string redoLabel() { return redoTop >= 0 ? redoStack[redoTop].operation : ""; }

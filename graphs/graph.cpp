@@ -475,3 +475,6 @@ void graphMenu() {
 
     } while (choice != 8);
 }
+
+// ===== WEB API ACCESSOR =====
+const map<string, set<int>>& graphData() { return graph; }

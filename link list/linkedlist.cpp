@@ -312,3 +312,15 @@ void LinkedListMenu() {
 
     } while (true);
 }
+
+// ===== WEB API ACCESSORS =====
+vector<pair<string, Task>> workflowHistory() {
+    vector<pair<string, Task>> out;
+    for (const WorkflowEvent& e : history) out.push_back({e.action, e.task});
+    return out;
+}
+vector<int> workflowOrder() {
+    vector<int> out;
+    for (Node* c = head; c != nullptr; c = c->next) out.push_back(c->taskId);
+    return out;
+}

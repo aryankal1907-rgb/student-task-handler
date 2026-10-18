@@ -889,5 +889,158 @@ void markTaskCompleted() {
     cout << "Task ID not found.\n";
 }
 
+// ===== WEB API LAYER =====
+void saveTasks();
+static string trimStr(const string& s) {
+    size_t a = s.find_first_not_of(" \t\r\n");
+    if (a == string::npos) return "";
+    size_t b = s.find_last_not_of(" \t\r\n");
+    return s.substr(a, b - a + 1);
+}
+static bool validType(const string& t) {
+    for (int i = 1; i <= 7; i++) if (getTaskType(i) == t) return true;
+    return false;
+}
+static int findIndexById(int id) {
+    for (int i = 0; i < taskCount; i++) if (tasks[i].id == id) return i;
+    return -1;
+}
+void apiRefresh() { cleanupOverdueTasks(); sortTasks(); }
 
+bool apiAddTask(const string& type, const string& subjectIn, const string& nameIn,
+                const string& deadline, int& newId, string& err) {
+    cleanupOverdueTasks();
+    if (taskCount >= 100) { err = "Task list is full (100 tasks max)."; return false; }
+    if (!validType(type)) { err = "Choose a valid task type."; return false; }
+    string subject = trimStr(subjectIn), name = trimStr(nameIn);
+    if (subject.empty()) { err = "Subject cannot be empty."; return false; }
+    if (name.empty()) { err = "Description cannot be empty."; return false; }
+    tm check = {};
+    if (!parseDate(deadline, check)) { err = "Invalid date. Use DD-MM-YYYY."; return false; }
+    int days = daysRemaining(deadline);
+    if (days < 0) { err = "Deadline is in the past."; return false; }
 
+    Task task;
+    task.id = nextTaskId++;
+    task.type = type; task.subject = subject; task.name = name; task.deadline = deadline;
+    task.priority = calculatePriority(days);
+    task.completed = false;
+
+    saveState("Added Task: " + task.name + " (ID " + to_string(task.id) + ")");
+    tasks[taskCount++] = task;
+    recordTaskAdded(task);
+    enqueueTaskAutomatically(task.id);
+    sortTasks();
+    saveTasks();
+    synchronizeAVLWithTasks();
+    synchronizeGraphWithTasks();
+    newId = task.id;
+    return true;
+}
+
+bool apiUpdateTask(int id, const string& type, const string& subject, const string& name,
+                   const string& deadline, string& err) {
+    cleanupOverdueTasks();
+    int i = findIndexById(id);
+    if (i < 0) { err = "Task ID not found."; return false; }
+    Task updated = tasks[i];
+    if (!type.empty()) {
+        if (!validType(type)) { err = "Choose a valid task type."; return false; }
+        updated.type = type;
+    }
+    if (!subject.empty()) updated.subject = trimStr(subject);
+    if (!name.empty()) updated.name = trimStr(name);
+    if (!deadline.empty()) {
+        tm check = {};
+        if (!parseDate(deadline, check)) { err = "Invalid date. Use DD-MM-YYYY."; return false; }
+        if (daysRemaining(deadline) < 0) { err = "Deadline cannot be in the past."; return false; }
+        updated.deadline = deadline;
+        updated.priority = calculatePriority(daysRemaining(deadline));
+    }
+    if (updated.subject.empty() || updated.name.empty()) { err = "Subject and description cannot be empty."; return false; }
+
+    saveState("Updated Task: " + updated.name + " (ID " + to_string(updated.id) + ")");
+    tasks[i] = updated;
+    recordTaskUpdated(updated);
+    refreshQueue();
+    sortTasks();
+    saveTasks();
+    synchronizeAVLWithTasks();
+    synchronizeGraphWithTasks();
+    return true;
+}
+
+bool apiCompleteTask(int id, string& err) {
+    cleanupOverdueTasks();
+    int i = findIndexById(id);
+    if (i < 0) { err = "Task ID not found."; return false; }
+    if (tasks[i].completed) { err = "Task is already completed."; return false; }
+    saveState("Marked Task ID " + to_string(id) + " as Completed");
+    tasks[i].completed = true;
+    recordTaskCompleted(tasks[i]);
+    removeTaskFromQueue(id);
+    sortTasks();
+    saveTasks();
+    synchronizeAVLWithTasks();
+    return true;
+}
+
+bool apiDeleteTasks(const vector<int>& ids, string& err) {
+    cleanupOverdueTasks();
+    if (ids.empty()) { err = "No tasks selected."; return false; }
+    for (size_t a = 0; a < ids.size(); a++) {
+        if (findIndexById(ids[a]) < 0) { err = "Invalid Task ID: " + to_string(ids[a]); return false; }
+        for (size_t b = a + 1; b < ids.size(); b++)
+            if (ids[a] == ids[b]) { err = "Duplicate Task ID."; return false; }
+    }
+    saveState("Deleted " + to_string(ids.size()) + " Task(s)", ids);
+    for (int id : ids) {
+        int i = findIndexById(id);
+        recordTaskDeleted(tasks[i]);
+        deletedTasks.push_back(tasks[i]);
+        removeTaskFromQueue(id);
+        removeTaskAt(i);
+    }
+    sortTasks();
+    saveTasks();
+    saveDeletedTasks();
+    synchronizeAVLWithTasks();
+    synchronizeGraphWithTasks();
+    return true;
+}
+
+bool apiRestoreTasks(const vector<int>& ids, string& err) {
+    if (ids.empty()) { err = "No tasks selected."; return false; }
+    if (taskCount + (int)ids.size() > 100) { err = "Not enough space in the active task list."; return false; }
+    for (int id : ids) {
+        bool found = false;
+        for (const Task& t : deletedTasks) {
+            if (t.id != id) continue;
+            found = true;
+            if (!t.completed && daysRemaining(t.deadline) < 0) {
+                err = "\"" + t.name + "\" is past its deadline and cannot be restored.";
+                return false;
+            }
+        }
+        if (!found) { err = "Deleted task ID " + to_string(id) + " not found."; return false; }
+    }
+    saveState("Restored " + to_string(ids.size()) + " Task(s)", ids);
+    for (int id : ids) {
+        for (size_t i = 0; i < deletedTasks.size(); i++) {
+            if (deletedTasks[i].id != id) continue;
+            Task t = deletedTasks[i];
+            if (!t.completed) t.priority = calculatePriority(daysRemaining(t.deadline));
+            tasks[taskCount++] = t;
+            recordTaskRestored(t);
+            enqueueTaskAutomatically(t.id);
+            deletedTasks.erase(deletedTasks.begin() + i);
+            break;
+        }
+    }
+    sortTasks();
+    saveTasks();
+    saveDeletedTasks();
+    synchronizeAVLWithTasks();
+    synchronizeGraphWithTasks();
+    return true;
+}

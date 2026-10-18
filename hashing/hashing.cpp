@@ -57,3 +57,14 @@ void searchTaskById() {
 
     cout << "Task ID not found.\n";
 }
+
+// ===== WEB API: same hash lookup as searchTaskById(), no cin/cout =====
+int hashFindTaskIndex(int id) {
+    if (id <= 0) return -1;
+    vector<int> hashTable[TABLE_SIZE];
+    for (int i = 0; i < taskCount; i++)
+        hashTable[tasks[i].id % TABLE_SIZE].push_back(i);
+    for (int position : hashTable[id % TABLE_SIZE])
+        if (tasks[position].id == id) return position;
+    return -1;
+}

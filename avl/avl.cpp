@@ -449,3 +449,17 @@ void avlMenu() {
 
     } while (true);
 }
+
+// ===== WEB API: in-order range query on the AVL tree =====
+static void collectRange(AVLNode* node, int startKey, int endKey, vector<int>& out) {
+    if (!node) return;
+    if (node->deadlineKey >= startKey) collectRange(node->left, startKey, endKey, out);
+    if (node->deadlineKey >= startKey && node->deadlineKey <= endKey) out.push_back(node->taskId);
+    if (node->deadlineKey <= endKey) collectRange(node->right, startKey, endKey, out);
+}
+bool avlRangeIds(const string& startDate, const string& endDate, vector<int>& out) {
+    int a, b;
+    if (!deadlineToKey(startDate, a) || !deadlineToKey(endDate, b) || a > b) return false;
+    collectRange(root, a, b, out);
+    return true;
+}
