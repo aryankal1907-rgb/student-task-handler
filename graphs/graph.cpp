@@ -10,6 +10,9 @@
 #include <limits>
 using namespace std;
 
+void saveTasks();
+void synchronizeGraphWithTasks();
+
 static map<string, set<int>> graph;
 static const string GRAPH_FILE = "graph.txt";
 
@@ -24,6 +27,21 @@ void saveGraph() {
 
         file << '\n';
     }
+}
+
+void synchronizeGraphWithTasks() {
+    for (auto& subject : graph)
+        subject.second.clear();
+
+    for (int i = 0; i < taskCount; i++) {
+        if (tasks[i].subject.empty())
+            tasks[i].subject = "Uncategorized";
+
+        graph[tasks[i].subject].insert(tasks[i].id);
+    }
+
+    saveTasks();
+    saveGraph();
 }
 
 void initializeGraph() {
@@ -53,6 +71,7 @@ void initializeGraph() {
 
         graph[subject];
     }
+    synchronizeGraphWithTasks();
 }
 
 static bool validTaskId(int id) {
@@ -68,6 +87,15 @@ static string taskDescription(int id) {
     for (int i = 0; i < taskCount; i++) {
         if (tasks[i].id == id)
             return tasks[i].name;
+    }
+
+    return "Task not found";
+}
+
+static string taskStatus(int id) {
+    for (int i = 0; i < taskCount; i++) {
+        if (tasks[i].id == id)
+            return tasks[i].completed ? "Completed" : "Pending";
     }
 
     return "Task not found";
@@ -171,9 +199,17 @@ void connectTasksToSubject() {
     }
 
     for (int id : ids)
-        graph[subject].insert(id);
+    {
+        for (int i = 0; i < taskCount; i++) {
+            if (tasks[i].id == id) {
+                tasks[i].subject = subject;
+                break;
+            }
+        }
+    }
 
-    saveGraph();
+    saveTasks();
+    synchronizeGraphWithTasks();
     cout << "Task connections added successfully.\n";
 }
 
@@ -239,9 +275,16 @@ void removeTaskFromSubject() {
     }
 
     for (int id : ids)
-        it->second.erase(id);
+    {
+        for (int i = 0; i < taskCount; i++) {
+            if (tasks[i].id == id) {
+                tasks[i].subject.clear();
+                break;
+            }
+        }
+    }
 
-    saveGraph();
+    synchronizeGraphWithTasks();
     cout << "Connections removed successfully.\n";
 }
 
@@ -267,8 +310,10 @@ void displaySubjectTasks() {
 
     for (int id : it->second)
         cout << "Task ID: " << id
-             << " | " << taskDescription(id) << '\n';
+             << " | " << taskDescription(id)
+                << " | Status: " << taskStatus(id) << '\n';
 }
+
 
 void displayGraph() {
     if (graph.empty()) {
@@ -279,19 +324,31 @@ void displayGraph() {
     cout << "\n========== SUBJECT-TASK GRAPH ==========\n";
 
     for (const auto& subject : graph) {
-        cout << "\n" << subject.first << " -> ";
+        cout << "\nSubject: " << subject.first << '\n';
+        cout << "------------------------------\n";
 
         if (subject.second.empty()) {
-            cout << "No tasks";
+            cout << "Task IDs: None\n";
         } else {
-            for (int id : subject.second)
-                cout << "[ID " << id << ": "
-                     << taskDescription(id) << "] ";
-        }
+            cout << "Task IDs: ";
 
-        cout << '\n';
+            bool first = true;
+
+            for (int id : subject.second) {
+                if (!first)
+                    cout << ", ";
+
+                cout << id;
+                first = false;
+            }
+
+            cout << '\n';
+        }
     }
+
+    cout << "\n========================================\n";
 }
+
 
 void bfsTraversal() {
     string start;
@@ -382,7 +439,6 @@ void dfsTraversal() {
     dfs(dfs, "S:" + start);
     cout << '\n';
 }
-
 void graphMenu() {
     int choice;
 

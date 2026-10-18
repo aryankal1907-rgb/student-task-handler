@@ -1,98 +1,200 @@
 ADDED
-8
+1
 Tutorial
+coa
+coa tut 6
+19-10-2026
+1
+0
+QUEUE AUTO ENQUEUE
+1
+Tutorial
+coa
+coa tut 6
+19-10-2026
+1
+0
+ADDED
+2
+Assignment
+rdbms
+rdbms assignment 2
+26-10-2026
+1
+0
+QUEUE AUTO ENQUEUE
+2
+Assignment
+rdbms
+rdbms assignment 2
+26-10-2026
+1
+0
+ADDED
+3
+Project
 dsa
-30-10-2026
+dsa project submission
+19-10-2026
+1
+0
+QUEUE AUTO ENQUEUE
+3
+Project
+dsa
+dsa project submission
+19-10-2026
+1
+0
+ADDED
+4
+Assignment
+ooops
+oops assignment 1
+06-11-2026
+2
+0
+QUEUE AUTO ENQUEUE
+4
+Assignment
+ooops
+oops assignment 1
+06-11-2026
 2
 0
 UPDATED
-3
-Quiz Preparation
-oops quiz
-19-10-2026
-1
-1
+4
+Assignment
+oops
+oops assignment 1
+06-11-2026
+2
+0
 ADDED
-9
-Tutorial
-coa tut 6
-22-10-2026
+5
+Quiz Preparation
+dsa
+dsa quiz 3
+27-10-2026
 1
 0
-DELETED
+QUEUE AUTO ENQUEUE
 5
+Quiz Preparation
+dsa
+dsa quiz 3
+27-10-2026
+1
+0
+ADDED
+6
+Exam Preparation
+oops 
+oops nptel exam
+25-10-2026
+1
+0
+QUEUE AUTO ENQUEUE
+6
+Exam Preparation
+oops 
+oops nptel exam
+25-10-2026
+1
+0
+ADDED
+7
 Project
 rdbms
-24-10-2026
+rdbms project submit
+26-10-2026
 1
+0
+QUEUE AUTO ENQUEUE
+7
+Project
+rdbms
+rdbms project submit
+26-10-2026
+1
+0
+ADDED
+8
+Assignment
+maths
+maths assignment 4
+30-10-2026
+2
+0
+QUEUE AUTO ENQUEUE
+8
+Assignment
+maths
+maths assignment 4
+30-10-2026
+2
+0
+DELETED
+4
+Assignment
+oops
+oops assignment 1
+06-11-2026
+2
+0
+QUEUE REMOVE
+4
+Assignment
+oops
+oops assignment 1
+06-11-2026
+2
+0
+RESTORED
+4
+Assignment
+oops
+oops assignment 1
+06-11-2026
+2
+0
+QUEUE AUTO ENQUEUE
+4
+Assignment
+oops
+oops assignment 1
+06-11-2026
+2
+0
+UNDO: Restored 1 Task(s)
+4
+Assignment
+ooops
+oops assignment 1
+06-11-2026
+2
+0
+REDO: Restored 1 Task(s)
+4
+Assignment
+oops
+oops assignment 1
+06-11-2026
+2
 0
 COMPLETED
 3
-Quiz Preparation
-oops quiz
+Project
+dsa
+dsa project submission
 19-10-2026
 1
 1
-DELETED
-1
+QUEUE REMOVE
+3
 Project
-dsa prooject on task handling
-19-10-2026
-1
-1
-DELETED
-5
-Project
-rdbms
-24-10-2026
-1
-0
-RESTORED
-1
-Project
-dsa prooject on task handling
-19-10-2026
-1
-1
-RESTORED
-5
-Project
-rdbms
-24-10-2026
-1
-0
-UNDO: Restored 2 Task(s)
-1
-Project
-dsa prooject on task handling
-19-10-2026
-1
-1
-UNDO: Restored 2 Task(s)
-5
-Project
-rdbms
-24-10-2026
-1
-0
-REDO: Restored 2 Task(s)
-1
-Project
-dsa prooject on task handling
-19-10-2026
-1
-1
-REDO: Restored 2 Task(s)
-5
-Project
-rdbms
-24-10-2026
-1
-0
-UPDATED
-1
-Project
-dsa project
+dsa
+dsa project submission
 19-10-2026
 1
 1

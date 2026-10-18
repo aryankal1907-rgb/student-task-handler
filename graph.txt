@@ -1,0 +1,7 @@
+"coa" 1
+"dsa" 3 5
+"maths" 8
+"ooops"
+"oops" 4
+"oops " 6
+"rdbms" 2 7

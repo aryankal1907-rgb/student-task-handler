@@ -17,7 +17,7 @@ struct Task {
 
 extern Task tasks[100];
 extern int taskCount;
-
+extern std::vector<Task> deletedTasks;
 void initializeTasks();
 void addTask();
 void displayTasks();

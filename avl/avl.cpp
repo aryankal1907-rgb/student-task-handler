@@ -202,6 +202,7 @@ static void displayRange(
 
             cout << left
                  << setw(7) << task.id
+                 << setw(18) << task.subject
                  << setw(22) << task.name
                  << setw(15) << task.deadline
                  << setw(12)
@@ -360,12 +361,13 @@ void avlMenu() {
 
         cout << left
              << setw(7) << "ID"
+             << setw(18) << "Subject"
              << setw(22) << "Description"
              << setw(15) << "Deadline"
              << setw(12) << "Priority"
              << "Status\n";
 
-        cout << string(70, '-') << '\n';
+        cout << string(96, '-') << '\n';
 
         displayRange(root, startKey, endKey, rangeCount);
 
@@ -394,6 +396,7 @@ void avlMenu() {
 
                 cout << "\nHighest-priority task:\n";
                 cout << "ID: " << tasks[index].id << '\n';
+                cout << "Subject: " << tasks[index].subject << '\n';
                 cout << "Description: " << tasks[index].name << '\n';
                 cout << "Deadline: " << tasks[index].deadline << '\n';
                 cout << "Priority: "
@@ -426,6 +429,7 @@ void avlMenu() {
                 if (index != -1) {
                     cout << "\nTask found in the selected range:\n";
                     cout << "ID: " << tasks[index].id << '\n';
+                    cout << "Subject: " << tasks[index].subject << '\n';
                     cout << "Description: "
                          << tasks[index].name << '\n';
                     cout << "Deadline: "

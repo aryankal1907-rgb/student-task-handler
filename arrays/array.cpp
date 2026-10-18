@@ -42,6 +42,7 @@ void arrayMenu() {
                 break;
 
             case 4:
+                displayTasks();
                 updateTask();
                 break;
 
@@ -51,6 +52,7 @@ void arrayMenu() {
                 for (int i = 0; i < taskCount; i++) {
                     if (!tasks[i].completed) {
                         cout << "ID: " << tasks[i].id
+                            <<"Subject: " << tasks[i].subject
                              << " | " << tasks[i].name
                              << " | Deadline: " << tasks[i].deadline
                              << " | Priority: " << tasks[i].priority
@@ -71,6 +73,7 @@ void arrayMenu() {
                 for (int i = 0; i < taskCount; i++) {
                     if (tasks[i].completed) {
                         cout << "ID: " << tasks[i].id
+                            <<"Subject: " << tasks[i].subject
                              << " | " << tasks[i].name
                              << " | Deadline: " << tasks[i].deadline
                              << '\n';
@@ -109,6 +112,8 @@ void arrayMenu() {
 
                 cout << "Task with earliest deadline:\n";
                 cout << "ID: " << tasks[earliest].id
+                     << "\nSubject: " << tasks[earliest].subject
+                     << "\nTask: " << tasks[earliest].name
                      << "\nDescription: " << tasks[earliest].name
                      << "\nDeadline: " << tasks[earliest].deadline
                      << '\n';

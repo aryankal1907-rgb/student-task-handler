@@ -43,7 +43,9 @@ void searchTaskById() {
             cout << "\n========== TASK FOUND ==========\n";
             cout << "Task ID: " << tasks[position].id << '\n';
             cout << "Type: " << tasks[position].type << '\n';
-            cout << "Description: " << tasks[position].name << '\n';
+            cout << "Subject: " << tasks[position].subject << '\n';
+            cout << "Task: " << tasks[position].name << '\n';
+            cout << "Description: " << tasks[position].name<<'\n';
             cout << "Deadline: " << tasks[position].deadline << '\n';
             cout << "Priority: " << tasks[position].priority << '\n';
             cout << "Status: "

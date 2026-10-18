@@ -269,7 +269,11 @@ void displayQueue() {
         int priority = calculatePriority(days);
 
         cout << "ID: " << task->id
+             << " | Type: " << task->type
+             << " | Subject: " << task->subject
+             << " | Task: " << task->name
              << " | Description: " << task->name
+             << " | Deadline: " << task->deadline
              << " | Priority: ";
 
         if (priority == 1)
@@ -312,6 +316,9 @@ void displayNextTask() {
     cout << "\n========== NEXT TASK TO OPERATE ==========\n";
     cout << "Task ID: " << task->id << '\n';
     cout << "Task: " << task->name << '\n';
+    cout << "Type: " << task->type << '\n';
+    cout << "Subject: " << task->subject << '\n';
+    cout << "Description: " << task->name<<'\n';
     cout << "Priority: ";
 
     if (priority == 1)

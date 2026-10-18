@@ -4,6 +4,7 @@
 #include "../link list/linkedlist.h"
 #include "../queue/queue.h"
 #include "../avl/avl.h"
+#include "../graphs/graph.h"
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -131,6 +132,7 @@ void undoMultiple(int n) {
         restoreState(previous);
         syncWorkflowWithTasks();
         synchronizeAVLWithTasks();
+        synchronizeGraphWithTasks();
 
         recordUndoRedoWorkflow(
             "UNDO: " + previous.operation,
@@ -167,6 +169,7 @@ void redoMultiple(int n) {
         restoreState(next);
         syncWorkflowWithTasks();
         synchronizeAVLWithTasks();
+        synchronizeGraphWithTasks();
 
         recordUndoRedoWorkflow(
             "REDO: " + next.operation,

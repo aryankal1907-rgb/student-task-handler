@@ -66,6 +66,7 @@ static void saveHistory() {
         file << event.action << '\n';
         file << event.task.id << '\n';
         file << event.task.type << '\n';
+        file << event.task.subject << '\n';
         file << event.task.name << '\n';
         file << event.task.deadline << '\n';
         file << event.task.priority << '\n';
@@ -88,6 +89,7 @@ static void loadHistory() {
 
         if (!getline(file, idLine) ||
             !getline(file, event.task.type) ||
+            !getline(file, event.task.subject) ||
             !getline(file, event.task.name) ||
             !getline(file, event.task.deadline) ||
             !getline(file, priorityLine) ||
@@ -228,7 +230,16 @@ static void displayHistory() {
     for (int i = 0; i < (int)history.size(); i++) {
         cout << i + 1 << ". " << history[i].action
              << " | ID: " << history[i].task.id
-             << " | " << history[i].task.name << '\n';
+             << " | Type: " << history[i].task.type
+             << " | Subject: " << history[i].task.subject
+             << " | Task: " << history[i].task.name
+             << " | Priority: " << priorityName(history[i].task.priority)
+             << " | Days remaining: "
+             << daysRemaining(history[i].task.deadline)
+             << " | Deadline: " << history[i].task.deadline
+             << " | Status: "
+             << (history[i].task.completed ? "Completed" : "Pending")
+             << '\n';
     }
 }
 
@@ -249,6 +260,7 @@ static void displayCurrentWorkflow() {
             if (tasks[i].id == id) {
                 cout << "ID: " << tasks[i].id
                      << " | Type: " << tasks[i].type
+                     << " | Subject: " << tasks[i].subject
                      << " | Task: " << tasks[i].name
                      << " | Priority: " << priorityName(tasks[i].priority)
                      << " | Days remaining: "

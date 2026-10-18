@@ -1,8 +1,9 @@
 
 #include "task.h"
-#include <iostream>
+#include<iostream>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 #include <ctime>
 #include <cmath>
 #include <cstdio>
@@ -14,13 +15,14 @@
 #include "../stack/stack.h"
 #include "../queue/queue.h"
 #include "../avl/avl.h"
+#include "../graphs/graph.h"
 using namespace std;
 
 Task tasks[100];
 int taskCount = 0;
 
 static int nextTaskId = 1;
-static vector<Task> deletedTasks;
+vector<Task> deletedTasks;
 
 const string ACTIVE_FILE = "tasks.txt";
 const string DELETED_FILE = "deleted_tasks.txt";
@@ -134,6 +136,7 @@ void saveTasks() {
     for (int i = 0; i < taskCount; i++) {
         file << tasks[i].id << ' '
              << quoted(tasks[i].type) << ' '
+             << quoted(tasks[i].subject) << ' '
              << quoted(tasks[i].name) << ' '
              << quoted(tasks[i].deadline) << ' '
              << tasks[i].priority << ' '
@@ -147,6 +150,7 @@ void saveDeletedTasks() {
     for (const Task& task : deletedTasks) {
         file << task.id << ' '
              << quoted(task.type) << ' '
+             << quoted(task.subject) << ' '
              << quoted(task.name) << ' '
              << quoted(task.deadline) << ' '
              << task.priority << ' '
@@ -154,39 +158,105 @@ void saveDeletedTasks() {
     }
 }
 
+
 void loadTasks() {
     ifstream file(ACTIVE_FILE);
-    Task task;
+    string line;
 
-    while (file >> task.id
-                >> quoted(task.type)
-                >> quoted(task.name)
-                >> quoted(task.deadline)
-                >> task.priority
-                >> task.completed) {
+    while (getline(file, line)) {
+        Task task{};
+        istringstream input(line);
+
+        if (!(input >> task.id >> quoted(task.type)))
+            continue;
+
+        string subject, name, deadline;
+        int priority;
+        bool completed;
+
+        istringstream newFormat(line);
+        int id;
+        string type;
+
+        if (newFormat >> id >> quoted(type)
+                      >> quoted(subject) >> quoted(name)
+                      >> quoted(deadline) >> priority >> completed) {
+            task.subject = subject;
+            task.name = name;
+            task.deadline = deadline;
+            task.priority = priority;
+            task.completed = completed;
+        } else {
+            istringstream oldFormat(line);
+
+            if (!(oldFormat >> task.id >> quoted(task.type)
+                           >> quoted(task.name) >> quoted(task.deadline)
+                           >> task.priority >> task.completed)) {
+                continue;
+            }
+
+            task.subject = "Uncategorized";
+        }
+
         tm check = {};
-
-        if (taskCount >= 100)
-            break;
 
         if (!parseDate(task.deadline, check))
             continue;
+
+        if (taskCount >= 100)
+            break;
 
         tasks[taskCount++] = task;
         nextTaskId = max(nextTaskId, task.id + 1);
     }
 }
 
+
 void loadDeletedTasks() {
     ifstream file(DELETED_FILE);
-    Task task;
+    string line;
 
-    while (file >> task.id
-                >> quoted(task.type)
-                >> quoted(task.name)
-                >> quoted(task.deadline)
-                >> task.priority
-                >> task.completed) {
+    while (getline(file, line)) {
+        istringstream input(line);
+        Task task;
+
+        if (!(input >> task.id >> quoted(task.type)))
+            continue;
+
+        string remaining;
+        getline(input >> ws, remaining);
+
+        istringstream oldInput(remaining);
+        string name, deadline;
+        int priority;
+        bool completed;
+
+        if (!(oldInput >> quoted(name) >> quoted(deadline)
+                       >> priority >> completed))
+            continue;
+
+        task.name = name;
+        task.deadline = deadline;
+        task.priority = priority;
+        task.completed = completed;
+
+        istringstream newInput(remaining);
+        string subject, newName, newDeadline;
+        int newPriority;
+        bool newCompleted;
+
+        if (newInput >> quoted(subject) >> quoted(newName)
+                     >> quoted(newDeadline)
+                     >> newPriority >> newCompleted) {
+            task.subject = subject;
+            task.name = newName;
+            task.deadline = newDeadline;
+            task.priority = newPriority;
+            task.completed = newCompleted;
+        } else {
+            task.subject = "Uncategorized";
+        }
+
         tm check = {};
 
         if (!parseDate(task.deadline, check))
@@ -306,6 +376,14 @@ void addTask() {
     Task task;
     task.type = type;
 
+    cout << "Enter subject name:";
+    getline(cin >> ws, task.subject);
+
+    if (task.subject.empty()) {
+        cout << "Subject cannot be empty.\n";
+        return;
+    }
+
     cout << "Enter task description: ";
     getline(cin >> ws, task.name);
 
@@ -341,6 +419,7 @@ void addTask() {
     enqueueTaskAutomatically(task.id);
     saveTasks();
     synchronizeAVLWithTasks();
+    synchronizeGraphWithTasks();
 
     cout << "Task added successfully. ID: "
          << task.id << '\n';
@@ -369,11 +448,14 @@ void updateTask() {
             continue;
 
         cout << "\nCurrent description: " << tasks[i].name << '\n';
+        cout<< "Current subject: " << tasks[i].subject << '\n';
+        cout << "Current type: " << tasks[i].type << '\n';
         cout << "Current deadline: " << tasks[i].deadline << '\n';
         cout << "1. Update type\n";
-        cout << "2. Update description\n";
-        cout << "3. Update deadline\n";
-        cout << "4. Update all details\n";
+        cout<< "2. Update subject\n";
+        cout << "3. Update description\n";
+        cout << "4. Update deadline\n";
+        cout << "5. Update all details\n";
         cout << "Enter choice: ";
 
         int choice;
@@ -387,7 +469,7 @@ void updateTask() {
 
         Task updated = tasks[i];
 
-        if (choice == 1 || choice == 4) {
+        if (choice == 1 || choice == 5) {
             showTaskTypes();
             int typeChoice;
 
@@ -408,7 +490,7 @@ void updateTask() {
             updated.type = type;
         }
 
-        if (choice == 2 || choice == 4) {
+        if (choice == 3|| choice == 5){
             cout << "Enter new description: ";
             getline(cin >> ws, updated.name);
 
@@ -418,7 +500,7 @@ void updateTask() {
             }
         }
 
-        if (choice == 3 || choice == 4) {
+        if (choice == 4 || choice == 5) {
             cout << "Enter new deadline (DD-MM-YYYY): ";
             cin >> updated.deadline;
 
@@ -439,7 +521,17 @@ void updateTask() {
             );
         }
 
-        if (choice < 1 || choice > 4) {
+        if(choice == 2 || choice == 5){
+            cout << "Enter new subject: ";
+            getline(cin >> ws, updated.subject);
+
+            if (updated.subject.empty()) {
+                cout << "Subject cannot be empty.\n";
+                return;
+            }
+        }
+
+        if (choice < 1 || choice > 5){
             cout << "Invalid choice.\n";
             return;
         }
@@ -451,6 +543,7 @@ void updateTask() {
         sortTasks();
         saveTasks();
         synchronizeAVLWithTasks();
+        synchronizeGraphWithTasks();
         cout << "Task updated and saved successfully.\n";
         return;
     }
@@ -469,13 +562,14 @@ void displayTasks() {
 
     const int idW = 6;
     const int typeW = 20;
+    const int subjectW = 20;
     const int nameW = 28;
     const int dateW = 14;
     const int daysW = 12;
     const int priorityW = 16;
     const int statusW = 12;
 
-    int totalW = idW + typeW + nameW + dateW
+    int totalW = idW + typeW + subjectW + nameW + dateW
                + daysW + priorityW + statusW;
 
     cout << "\n" << string(totalW, '=') << '\n';
@@ -485,6 +579,7 @@ void displayTasks() {
     cout << left
          << setw(idW) << "ID"
          << setw(typeW) << "Type"
+         << setw(subjectW) << "Subject"
          << setw(nameW) << "Description"
          << setw(dateW) << "Deadline"
          << setw(daysW) << "Days Left"
@@ -507,9 +602,14 @@ void displayTasks() {
         if (description.length() >= nameW)
             description = description.substr(0, nameW - 1);
 
+        string subject = tasks[i].subject;
+        if (subject.length() >= subjectW)
+            subject = subject.substr(0, subjectW - 1);  
+
         cout << left
              << setw(idW) << tasks[i].id
              << setw(typeW) << tasks[i].type
+             << setw(subjectW) << subject
              << setw(nameW) << description
              << setw(dateW) << tasks[i].deadline
              << setw(daysW) << remaining
@@ -538,6 +638,7 @@ void displayDeletedTasks() {
     for (const Task& task : deletedTasks) {
         cout << "\nID: " << task.id
              << "\nType: " << task.type
+            << "\nSubject: " << task.subject
              << "\nDescription: " << task.name
              << "\nDeadline: " << task.deadline
              << "\nStatus: "
@@ -560,6 +661,7 @@ void restoreDeletedTask() {
     for (const Task& task : deletedTasks) {
         cout << "ID: " << task.id
              << " | Description: " << task.name
+             << " | Subject: " << task.subject
              << " | Deadline: " << task.deadline << '\n';
     }
 
@@ -650,6 +752,7 @@ void restoreDeletedTask() {
     saveTasks();
     saveDeletedTasks();
     synchronizeAVLWithTasks();
+    synchronizeGraphWithTasks();
 
     cout << count << " tasks restored successfully.\n";
 }
@@ -745,6 +848,7 @@ void deleteTask() {
     saveTasks();
     saveDeletedTasks();
     synchronizeAVLWithTasks();
+    synchronizeGraphWithTasks();
 
     cout << count << " tasks deleted successfully.\n";
 }

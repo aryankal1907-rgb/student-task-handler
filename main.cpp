@@ -55,6 +55,7 @@ int main() {
                 break;
 
             case 3:
+                displayTasks();
                 markTaskCompleted();
                 break;
 
@@ -68,14 +69,17 @@ int main() {
                 break;
 
             case 6:
+                displayTasks();
                 arrayMenu();
                 break;
 
             case 7:
+                displayTasks();
                 searchTaskById();
                 break;
 
             case 8:
+                displayDeletedTasks();
                 restoreDeletedTask();
                 break;
 

@@ -16,5 +16,7 @@ void displaySubjectTasks();
 void displayGraph();
 void bfsTraversal();
 void dfsTraversal();
+void synchronizeGraphWithTasks();
+void saveGraph();
 
 #endif
